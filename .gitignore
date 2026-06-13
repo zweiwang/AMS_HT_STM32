@@ -1,0 +1,39 @@
+# STM32CubeIDE
+Debug/
+.settings/
+*.elf
+*.list
+*.map
+*.bin
+*.hex
+*.srec
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.dist/
+AMS_HT_Temp.spec
+build/
+.ams_ht_config.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# CubeMX backup
+*.bak
+
+# Reference files (not needed for build)
+reference/
+
+# PyInstaller dist
+dist/
