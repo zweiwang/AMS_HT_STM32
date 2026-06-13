@@ -116,6 +116,7 @@ uint32_t http_request_start = 0;  /* HTTP请求开始时间，超时自动关闭
 char display1_buf[16] = "0-00.00.00";
 char display2_buf[16] = "025.3045.7";
 uint32_t display_refresh_tick = 0;  /* 显示刷新定时器，每50ms刷新 */
+uint8_t pa8_prev = 1;               /* PA8上次状态，用于EMI检测后重配MAX7219 */
 
 /* USER CODE END PV */
 
@@ -883,6 +884,20 @@ int main(void)
     if ((HAL_GetTick() - display_refresh_tick) >= 50)
     {
       display_refresh_tick = HAL_GetTick();
+      
+      /* 检测PA8继电器状态变化：EMI干扰后立即重配MAX7219寄存器 */
+      uint8_t pa8_now = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8);
+      if (pa8_now != pa8_prev)
+      {
+        pa8_prev = pa8_now;
+        /* 继电器状态变化后立即重配MAX7219，消除EMI导致的88888888故障 */
+        MAX7219_WriteReg_Dual(MAX7219_DISPLAYTEST, 0x00, MAX7219_DISPLAYTEST, 0x00);
+        MAX7219_WriteReg_Dual(MAX7219_SHUTDOWN, 0x01, MAX7219_SHUTDOWN, 0x01);
+        MAX7219_WriteReg_Dual(MAX7219_SCANLIMIT, 0x07, MAX7219_SCANLIMIT, 0x07);
+        MAX7219_WriteReg_Dual(MAX7219_DECODEMODE, 0x00, MAX7219_DECODEMODE, 0x00);
+        MAX7219_WriteReg_Dual(MAX7219_INTENSITY, 0x01, MAX7219_INTENSITY, 0x01);
+      }
+      
       MAX7219_DisplayStr_Dual(display1_buf, display2_buf);
     }
     
